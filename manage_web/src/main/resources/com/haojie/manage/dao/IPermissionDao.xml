@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.haojie.manage.dao.IPermissionDao">
+    <select id="findById" parameterType="string" resultType="com.haojie.manage.domain.Permission">
+        select * from permission where id in (select permissionId from role_permission where roleId=#{id})
+    </select>
+
+    <select id="findAll" resultType="com.haojie.manage.domain.Permission">
+        select * from permission
+    </select>
+
+    <insert id="save" parameterType="com.haojie.manage.domain.Permission">
+        insert into permission (permissionName,url) values (#{permissionName},#{url})
+    </insert>
+
+
+    <select id="find" parameterType="string" resultType="com.haojie.manage.domain.Permission">
+        select * from permission where id=#{id}
+    </select>
+
+    <delete id="deleteFromRole_PermissionById" parameterType="string">
+          delete from role_permission where permissionId=#{permissionId}
+    </delete>
+    <delete id="deleteById" parameterType="string">
+        delete from permission where id=#{id}
+    </delete>
+</mapper>

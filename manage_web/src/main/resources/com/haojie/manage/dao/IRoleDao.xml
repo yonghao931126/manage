@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.haojie.manage.dao.IRoleDao">
+    <resultMap id="roleMap" type="com.haojie.manage.domain.Role">
+        <id property="id" column="id"></id>
+        <result property="roleName" column="roleName"></result>
+        <result property="roleDesc" column="roleDesc"></result>
+        <collection property="permissions" column="id" ofType="com.haojie.manage.domain.Permission"
+                    select="com.haojie.manage.dao.IPermissionDao.findById"></collection>
+    </resultMap>
+    <select id="findRoleByUserId" parameterType="string" resultMap="roleMap">
+        select * from role where id in(select roleId from users_role where userId=#{id})
+    </select>
+
+    <select id="findAll" resultType="com.haojie.manage.domain.Role">
+        select * from role
+    </select>
+
+    <insert id="save" parameterType="com.haojie.manage.domain.Role">
+        insert into role (roleName,roleDesc) values (#{roleName},#{roleDesc})
+    </insert>
+
+    <select id="findById" parameterType="string" resultMap="roleMap">
+        select * from role where id=#{id}
+    </select>
+
+    <delete id="deleteRoleById" parameterType="string">
+        delete from role where id=#{id}
+    </delete>
+    <delete id="deleteFromRole_PermissionById" parameterType="string">
+        delete from role_permission where roleId=#{roleId}
+    </delete>
+
+    <delete id="deleteFromUsers_RoleById" parameterType="string">
+        delete from users_role where roleId=#{roleId}
+    </delete>
+
+    <select id="findOtherPermission" parameterType="string" resultType="com.haojie.manage.domain.Permission">
+        select * from permission where id not in (select permissionId from role_permission where roleId=#{roleId})
+    </select>
+
+    <insert id="addPermissionToRole" parameterType="string">
+        insert into role_permission (permissionId,roleId) values (#{permissionId},#{roleId})
+    </insert>
+</mapper>

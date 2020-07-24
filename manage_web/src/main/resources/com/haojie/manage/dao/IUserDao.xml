@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.haojie.manage.dao.IUserDao">
+    <resultMap id="userMap" type="com.haojie.manage.domain.UserInfo">
+        <id property="id" column="id"></id>
+        <result property="username" column="username"></result>
+        <result property="email" column="email"></result>
+        <result property="password" column="password"></result>
+        <result property="phoneNum" column="phoneNum"></result>
+        <result property="status" column="status"></result>
+        <!--配置role 一对多-->
+        <collection property="roles" column="id" ofType="com.haojie.manage.domain.Role"
+                    select="com.haojie.manage.dao.IRoleDao.findRoleByUserId">
+            <id property="id" column="id"></id>
+            <result property="roleName" column="roleName"></result>
+            <result property="roleDesc" column="roleDesc"></result>
+        </collection>
+    </resultMap>
+
+
+    <select id="findByUsername" parameterType="string" resultMap="userMap">
+        select * from users where username =#{username}
+    </select>
+
+    <select id="findById" parameterType="string" resultMap="userMap">
+        select * from users where id=#{id}
+    </select>
+
+    <select id="findAll" resultType="com.haojie.manage.domain.UserInfo">
+        select * from users
+    </select>
+
+    <insert id="save" parameterType="com.haojie.manage.domain.UserInfo">
+        insert into users (email,username,password,phoneNum,status)
+        values(#{email},#{username},#{password},#{phoneNum},#{status})
+    </insert>
+
+    <select id="findOtherRoles" parameterType="string" resultType="com.haojie.manage.domain.Role">
+        select * from role where id not in (select roleId from users_role where userId= #{userId})
+    </select>
+
+    <insert id="addRoleToUser" parameterType="string">
+        insert into users_role(userId,roleId) values (#{userId},#{roleId})
+    </insert>
+</mapper>

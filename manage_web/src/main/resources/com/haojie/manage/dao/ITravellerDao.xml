@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.haojie.manage.dao.ITravellerDao">
+    <resultMap id="travllerMap" type="com.haojie.manage.domain.Traveller">
+
+    </resultMap>
+    <select id="findByOrdersId" parameterType="string" resultType="com.haojie.manage.domain.Traveller">
+        select * from traveller where id in (select travellerId from order_traveller where orderId=#{orderId})
+    </select>
+</mapper>

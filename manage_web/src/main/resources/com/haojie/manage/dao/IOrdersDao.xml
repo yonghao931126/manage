@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.haojie.manage.dao.IOrdersDao">
+    <!--订单查询里面有商品  一对一映射-->
+    <resultMap id="ordersMap" type="com.haojie.manage.domain.Orders">
+        <id property="id" column="id"></id>
+        <result property="orderNum" column="orderNum"></result>
+        <result property="orderTime" column="orderTime"></result>
+        <result property="peopleCount" column="peopleCount"></result>
+        <result property="orderDesc" column="orderDesc"></result>
+        <result property="payType" column="payType"></result>
+        <result property="orderStatus" column="orderStatus"></result>
+        <!--配置product一对一信息-->
+        <association property="product" column="productid" javaType="com.haojie.manage.domain.Product"
+                     select="com.haojie.manage.dao.IProductDao.findById">
+            <!--由于是oracle数据库分页会产生嵌套查询容易错误,
+            orders实体类中有product实体类,所有一对一
+            orders中的productid时和product这个类的唯一关联,所以在查询orders时会查询到getProduct()这一方法,
+            从而会使product查询一下,所以要配置一对一:关键就在于productid这一字段,
+            property配置是product这一属性(ordersJavaBean中的属性) column配置的时数据库中的字段,也就是orders中的字段
+            javaType值得时该属性所属javabean的字节码  最后从这个关联出要发出一个对product的查询.也就是select=""
+            -->
+            <id property="id" column="id"></id>
+            <result property="productNum" column="productNum"></result>
+            <result property="productName" column="productName"></result>
+            <result property="cityName" column="cityName"></result>
+            <result property="departureTime" column="departureTime"></result>
+            <result property="productPrice" column="productPrice"></result>
+            <result property="productDesc" column="productDesc"></result>
+            <result property="productStatus" column="productStatus"></result>
+        </association>
+        <!--配置member一对一信息-->
+        <association property="member" column="memberid" javaType="com.haojie.manage.domain.Member"
+                     select="com.haojie.manage.dao.IMemberDao.findById">
+            <id property="id" column="id"></id>
+            <result property="name" column="name"></result>
+            <result property="nickname" column="nickname"></result>
+            <result property="phoneNum" column="phoneNum"></result>
+            <result property="email" column="email"></result>
+        </association>
+        <!--配置List<traveller>多对多信息通过中间表查询订单id是关键-->
+        <collection property="travellers" column="id" ofType="com.haojie.manage.domain.Traveller"
+                    select="com.haojie.manage.dao.ITravellerDao.findByOrdersId" fetchType="eager">
+            <id property="id" column="id"></id>
+            <result property="name" column="name"></result>
+            <result property="sex" column="sex"></result>
+            <result property="phoneNum" column="phoneNum"></result>
+            <result property="credentialsType" column="credentialsType"></result>
+            <result property="credentialsNum" column="credentialsNum"></result>
+            <result property="travellerType" column="travellerType"></result>
+        </collection>
+    </resultMap>
+
+    <!--&lt;!&ndash;定义Order的ResultMap懒加载模式映射,嵌套查询&ndash;&gt;
+    <resultMap id="OrderMapLazy" type="com.haojie.manage.domain.Orders">
+        <id property="id" column="id"/>
+        <result property="orderNum" column="orderNum"/>
+        <result property="orderTime" column="orderTime"/>
+        <result property="orderStatus" column="orderStatus"/>
+        <result property="peopleCount" column="peopleCount"/>
+        <result property="payType" column="payType"/>
+        <result property="orderDesc" column="orderDesc"/>
+        &lt;!&ndash;配置Order对象中product映射 ofType是类型，用全限定名或别名&ndash;&gt;
+        &lt;!&ndash;一对一查询&ndash;&gt;
+        <association property="product" javaType="com.haojie.manage.domain.Product" select="com.haojie.manage.dao.IProductDao.findById" column="productId" fetchType="lazy"/>
+        <association property="member" javaType="com.haojie.manage.domain.Member" select="com.haojie.manage.dao.IMemberDao.findById" column="memberId" fetchType="lazy"/>
+        &lt;!&ndash;多对多查询,需要根据中间表来查询&ndash;&gt;
+        <collection property="travellers" ofType="com.haojie.manage.domain.Traveller" column="id" select="com.haojie.manage.dao.ITravellerDao.findByOrdersId" fetchType="lazy"/>
+        &lt;!&ndash;如果是一对多查询，还是用colleaction标签，只不过不需要通过中间表查询&ndash;&gt;
+    </resultMap>-->
+    <select id="findAll" parameterType="string" resultMap="ordersMap">
+    select * from orders
+    </select>
+
+    <select id="findById" parameterType="string" resultMap="ordersMap">
+        select * from orders where id=#{id}
+    </select>
+
+</mapper>
